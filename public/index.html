@@ -9,13 +9,24 @@
 <body>
     <h1>Online Library</h1>
     <div id="book-list"></div>
-    <h2>Add a New Book</h2>
-    <form id="book-form">
-        <input type="text" id="title" placeholder="Title" required>
-        <input type="text" id="author" placeholder="Author" required>
-        <textarea id="description" placeholder="Description"></textarea>
-        <button type="submit">Add Book</button>
-    </form>
+
+    <!-- Button to open the modal -->
+    <button id="add-book-btn" onclick="openModal()">Add Book</button>
+
+    <!-- Modal for Adding/Editing a Book -->
+    <div id="book-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Add a New Book</h2>
+            <form id="book-form">
+                <input type="text" id="title" placeholder="Title" required>
+                <input type="text" id="author" placeholder="Author" required>
+                <textarea id="description" placeholder="Description"></textarea>
+                <button type="submit">Add Book</button>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -5,11 +5,25 @@ const db = require('../models/database');
 exports.getBooks = (req, res) => {
     db.all('SELECT * FROM books', (err, rows) => {
         if (err) {
-            console.error(err.message);
-            res.status(500).send('Server error');
-        } else {
-            res.json(rows);
+            console.error('Error fetching books:', err.message);
+            return res.status(500).send('Server error');
         }
+        res.json(rows);
+    });
+};
+
+// Get a single book from the local database by ID
+exports.getBookById = (req, res) => {
+    const { id } = req.params;
+    db.get('SELECT * FROM books WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            console.error('Error fetching book by ID:', err.message);
+            return res.status(500).send('Server error');
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        res.json(row);
     });
 };
 
@@ -26,11 +40,10 @@ exports.addBook = (req, res) => {
 
     db.run(sql, params, function (err) {
         if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to add book.' });
-        } else {
-            res.status(201).json({ id: this.lastID, title, author, description });
+            console.error('Error adding book:', err.message);
+            return res.status(500).json({ error: 'Failed to add book.' });
         }
+        res.status(201).json({ id: this.lastID, title, author, description });
     });
 };
 
@@ -48,13 +61,13 @@ exports.updateBook = (req, res) => {
 
     db.run(sql, params, function (err) {
         if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to update book.' });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Book not found.' });
-        } else {
-            res.status(200).json({ message: 'Book updated successfully.' });
+            console.error('Error updating book:', err.message);
+            return res.status(500).json({ error: 'Failed to update book.' });
         }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Book not found.' });
+        }
+        res.status(200).json({ message: 'Book updated successfully.' });
     });
 };
 
@@ -62,6 +75,10 @@ exports.updateBook = (req, res) => {
 exports.partialUpdateBook = (req, res) => {
     const { id } = req.params;
     const updates = req.body;
+
+    if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ error: 'No update data provided.' });
+    }
 
     let sql = 'UPDATE books SET ';
     const params = [];
@@ -78,13 +95,13 @@ exports.partialUpdateBook = (req, res) => {
 
     db.run(sql, params, function (err) {
         if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to partially update book.' });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Book not found.' });
-        } else {
-            res.status(200).json({ message: 'Book partially updated successfully.' });
+            console.error('Error partially updating book:', err.message);
+            return res.status(500).json({ error: 'Failed to partially update book.' });
         }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Book not found.' });
+        }
+        res.status(200).json({ message: 'Book partially updated successfully.' });
     });
 };
 
@@ -95,13 +112,13 @@ exports.deleteBook = (req, res) => {
     const sql = `DELETE FROM books WHERE id = ?`;
     db.run(sql, [id], function (err) {
         if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to delete book.' });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Book not found.' });
-        } else {
-            res.status(200).json({ message: 'Book deleted successfully.' });
+            console.error('Error deleting book:', err.message);
+            return res.status(500).json({ error: 'Failed to delete book.' });
         }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Book not found.' });
+        }
+        res.status(200).json({ message: 'Book deleted successfully.' });
     });
 };
 

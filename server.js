@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors'); // Import CORS middleware
-const bookRoutes = require('./routes/bookRoutes'); // Adjust the path as necessary
+const bookRoutes = require('./routes/bookRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
